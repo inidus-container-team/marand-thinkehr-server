@@ -11,8 +11,10 @@ before_script:
 script:
 - envsubst < Dockerfile > Dockerfile.$THINKEHR_VER
 - docker build -f Dockerfile.$THINKEHR_VER --tag marand-thinkehr-server .
-- docker run --name thinkehr-db -e POSTGRES_USER=thinkehr -e POSTGRES_PASSWORD=thinkehr -e POSTGRES_DB=thinkehr -d postgres
-- docker run --name thinkehr-server -v $PWD/conf/:/thinkehr/conf/ --link thinkehr-db:postgres -it marand-thinkehr-server ./bin/initdb.sh
+- docker run --name thinkehr-db -e POSTGRES_USER=thinkehr -e POSTGRES_PASSWORD=thinkehr
+  -e POSTGRES_DB=thinkehr -d postgres
+- docker run --name thinkehr-server -v $PWD/conf/:/thinkehr/conf/ --link thinkehr-db:postgres
+  -it marand-thinkehr-server ./bin/initdb.sh
 after_script:
 - docker images
 before_deploy:
@@ -23,3 +25,6 @@ deploy:
   script: docker push "${REGISTRY_URL}"/marand-thinkehr-server:${THINKEHR_VER}
   on:
     branch: master
+notifications:
+  slack:
+    secure: BHeje1HqLEijRPZWzjiJEWPFJsS+xHpDoZVFJcGGPhkhxHR21sSGS3qiPhKQ8IlBy+84Aytf02QALwH5yo98sYZ9K1hYc1DmNNmDai5FIAyYIIH4bziuV95s5bg2kJLe7ftmSY0SreDpej1DwtU1P48vJ07y3otfIUUOxlahn0rQf//7O4DLcDBSay4dkvcUAXwLiiQDLcjWampQfzrQWjI3eO0AO0IPR6132Fpg1fmRBQhdkyQg5rrCVE91cZT+NM8mrDrKenOa0D13jfbvmqenMXFrt3MHaVpmKU/JXqb2VOWNqa7Sr2aZM5ymquYb9m2q9wHFMi8Syk3Nv6O7IgAoF+VDrsLSZAnyoSiN9egYpHCPTQbNno0PWyJF/T84MMNgc9fuMUEmDL/LsvHnqGi/f7biZn6TnUWYPgfo2k0sbFqaTOCLCEVqkkUA0Ez4YDuhQbdRznCts0vN84KE1Mssc22OxNhLf85t58fQmCTYCqLGHpbrGeRUtteWC8ogzcteH7aQZ3KWcIkWaDJUpxzbYppZ6YXtQgG6YfxSDhWXc7107JOdKqA/jjEVq7GWkRbu1+xNjhbmHs3Ctm4dDju8AMVd9whJOZQFPY/tcF3EUD9lIqZDnIKEtgJL/ljSWr0Th9tyitjlvOUIkxAVNmya4QZMzyWbNh+myisLUgI=
