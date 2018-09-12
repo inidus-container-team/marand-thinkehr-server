@@ -1,23 +1,23 @@
 sudo: required
 services:
-  - docker
+- docker
 env:
-  - THINKEHR_VER=2.3.22
+- THINKEHR_VER=2.3.22
 before_script:
-  - wget -q https://$SOURCE_URL/source/marand/files/thinkehr-server-jsw-$THINKEHR_VER.tar.gz
+- wget -q https://$SOURCE_URL/source/marand/files/thinkehr-server-jsw-$THINKEHR_VER.tar.gz
   && tar zxf thinkehr-server-jsw-$THINKEHR_VER.tar.gz -C thinkehr && rm thinkehr-server-jsw-$THINKEHR_VER.tar.gz
-  - wget -q https://$SOURCE_URL/source/marand/files/thinkehr-server-$THINKEHR_VER.tar.gz
+- wget -q https://$SOURCE_URL/source/marand/files/thinkehr-server-$THINKEHR_VER.tar.gz
   && tar zxf thinkehr-server-$THINKEHR_VER.tar.gz -C thinkehr && rm thinkehr-server-$THINKEHR_VER.tar.gz
 script:
-  - envsubst < Dockerfile > Dockerfile.$THINKEHR_VER
-  - docker build -f Dockerfile.$THINKEHR_VER --tag marand-thinkehr-server .
-  - docker run --name thinkehr-db -e POSTGRES_USER=thinkehr -e POSTGRES_PASSWORD=thinkehr -e POSTGRES_DB=thinkehr -d postgres
-  - docker run --name thinkehr-server -v $PWD/conf/:/thinkehr/conf/ --link thinkehr-db:postgres -it marand-thinkehr-server ./bin/initdb.sh
+- envsubst < Dockerfile > Dockerfile.$THINKEHR_VER
+- docker build -f Dockerfile.$THINKEHR_VER --tag marand-thinkehr-server .
+- docker run --name thinkehr-db -e POSTGRES_USER=thinkehr -e POSTGRES_PASSWORD=thinkehr -e POSTGRES_DB=thinkehr -d postgres
+- docker run --name thinkehr-server -v $PWD/conf/:/thinkehr/conf/ --link thinkehr-db:postgres -it marand-thinkehr-server ./bin/initdb.sh
 after_script:
-  - docker images
+- docker images
 before_deploy:
-  - docker login $REGISTRY_URL -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
-  - docker tag marand-thinkehr-server "${REGISTRY_URL}"/marand-thinkehr-server:${THINKEHR_VER}
+- docker login $REGISTRY_URL -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+- docker tag marand-thinkehr-server "${REGISTRY_URL}"/marand-thinkehr-server:${THINKEHR_VER}
 deploy:
   provider: script
   script: docker push "${REGISTRY_URL}"/marand-thinkehr-server:${THINKEHR_VER}
